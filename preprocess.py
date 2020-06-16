@@ -29,11 +29,11 @@ def encode(s):
     result=[1]
     for word in l:
         i=word_index.get(word)
-        if i is None:
+        if i is None or i>9999:
             result.append(2)
         else:
             result.append(word_index.get(word)+3)
-    array=np.array(result, dtype="float32")
+    array=np.array(result, dtype="int32")
     paddedArray=np.pad(array,(0,1000-len(array)),'constant',constant_values=(0,))
     return paddedArray
     

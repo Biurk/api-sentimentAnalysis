@@ -36,26 +36,24 @@ app.use((req, res, next) => {
     next();
 });
 
-
-app.post('/', (req, res) => {
-    res.send('The sedulous hyena ate the antelope!');
-});
-app.post('/lol', (req, res) => {
-    res.send('wwlloooooooooooooooooollllllll!');
-});
-app.post('/lol/mdr', (req, res) => {
-    const process = child.spawn('python', ["./preprocess.py", req.body.phrase])
-    // console.log(req)
+app.post('/predict', (req, res) => {
+    const process = child.spawn('python3', ["./preprocess.py", req.body.phrase])
+    console.log('+++++++++++recieved this data fro request++++++++++++')
     console.log(req.body.phrase);
+    console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++')
     process.stdout.on('data', (data) => {
+        console.log('-----------result of preprocess------------')
+        console.log(data.toString())
+        console.log('-------------------------------------------')
         let result: string = data.toString();
         result = result.replace('[', '');
         result = result.replace(']', '').trim();
         let r: number[];
         r = result.split(/\s+/).map(a => parseFloat(a));
+        console.log('**********sending this to tfserv*************')
         console.log(r);
-        postRequest({ instances: [r] })
-        res.send({ result: r });
+        console.log('********************************************')
+        postRequest({ instances: [r] }, res);
     })
     process.stderr.on('data', (data) => {
         console.log(data.toString());
@@ -70,8 +68,8 @@ app.listen(port, err => {
 });
 
 /** post data to tensorflowserver */
-function postRequest(postData: any) {
-    const data = JSON.stringify(postData)
+function postRequest(postData: any, response: any) {
+    const data = JSON.stringify(postData);
 
     const options = {
         hostname: 'tfserv',
@@ -82,21 +80,23 @@ function postRequest(postData: any) {
             'Content-Type': 'application/json',
             'Content-Length': data.length
         }
-    }
+    };
 
     const req = http.request(options, (res) => {
-        console.log(`statusCode: ${res.statusCode}`)
+        console.log(`statusCode: ${res.statusCode}`);
 
         res.on('data', (d) => {
+            console.log(':::::::::::::::: response ::::::::::::::::::::::')
             console.log(d.toString());
-            process.stdout.write(d)
+            console.log('::::::::::::::::::::::::::::::::::::::::::::::::')
+            response.send(d.toString());
         })
     })
 
     req.on('error', (error) => {
-        console.error(error)
+        console.error(error);
     })
 
-    req.write(data)
-    req.end()
+    req.write(data);
+    req.end();
 }

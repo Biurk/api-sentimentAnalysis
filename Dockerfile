@@ -9,7 +9,7 @@
 
 FROM node
 WORKDIR /usr/src/app
-RUN apt-get update && apt-get install -y python-pip && pip install numpy
+RUN apt-get update && apt-get install -y python3-pip && pip3 install numpy
 COPY package*.json ./
 RUN npm install
 COPY . .
