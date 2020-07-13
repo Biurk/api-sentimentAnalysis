@@ -38,7 +38,7 @@ app.use((req, res, next) => {
 
 app.post('/predict', (req, res) => {
     const process = child.spawn('python3', ["./preprocess.py", req.body.phrase])
-    console.log('+++++++++++recieved this data fro request++++++++++++')
+    console.log('+++++++++++recieved this data from request++++++++++++')
     console.log(req.body.phrase);
     console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++')
     process.stdout.on('data', (data) => {
